@@ -12,7 +12,7 @@
 :root{
   --bg:#F5F7FA; --surface:#FFFFFF; --ink:#16233F; --muted:#5D6B82; --line:#D7DEE8;
   --navy:#13294B; --navy-ink:#FFFFFF; --amber:#F2A900; --green:#2E9E5B; --red:#C0392B; --soft:#EAF0F7;
-  --ambar:#E39B12; --esmeralda:#1E8E57; --perla:#8C83AE; --larimar:#2F9DD0;
+  --ambar:#00758F; --esmeralda:#336791; --perla:#C74634; --larimar:#47A248;
   color-scheme: light;
   box-sizing:border-box; padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
 }
@@ -90,13 +90,13 @@ td.lvl.sel{background:var(--amber);color:#1B1F2A}
 <script>
 const VIEWS = [
   ["inicio","Inicio"],["expectativas","Expectativas"],["diagnostico","Cuestionario diagnóstico"],["comunidades","Comunidades"],
-  ["coevaluacion","Coevaluación"],["cierre","Cuestionario de cierre"],["cotejo","Lista de cotejo"],["rubrica","Rúbrica"],["acuerdos","Acuerdos"]
+  ["cierre","Cuestionario de cierre"],["rubrica","Rúbrica"],["acuerdos","Acuerdos"]
 ];
 const COMS = [
-  {n:"Ámbar", c:"var(--ambar)", t:"Tipos de bases de datos y SGBD", d:"Elaboren un cuadro comparativo con MySQL, PostgreSQL, Oracle, MongoDB y Redis: tipo (relacional o NoSQL), uso típico y un ejemplo."},
-  {n:"Esmeralda", c:"var(--esmeralda)", t:"Tablas relacionales", d:"Con la tabla clientes de la “Tienda La Esquina”, identifiquen qué es una fila, qué es una columna y qué valores no se pueden repetir."},
-  {n:"Perla", c:"var(--perla)", t:"Valores únicos y claves primarias", d:"Creen en MySQL Workbench la tabla clientes con su clave primaria y expliquen por qué la clave debe ser única y no nula."},
-  {n:"Larimar", c:"var(--larimar)", t:"Relaciones uno a uno, uno a muchos y muchos a muchos", d:"Den un ejemplo de cada tipo de relación con la “Tienda La Esquina” (por ejemplo: un cliente realiza muchas ventas)."}
+  {n:"MySQL", c:"var(--ambar)", t:"Tipos de bases de datos y SGBD", d:"Elaboren un cuadro comparativo con MySQL, PostgreSQL, Oracle, MongoDB y Redis: tipo (relacional o NoSQL), uso típico y un ejemplo."},
+  {n:"PostgreSQL", c:"var(--esmeralda)", t:"Tablas relacionales", d:"Con la tabla clientes de la “Tienda La Esquina”, identifiquen qué es una fila, qué es una columna y qué valores no se pueden repetir."},
+  {n:"Oracle", c:"var(--perla)", t:"Valores únicos y claves primarias", d:"Creen en MySQL Workbench la tabla clientes con su clave primaria y expliquen por qué la clave debe ser única y no nula."},
+  {n:"MongoDB", c:"var(--larimar)", t:"Relaciones uno a uno, uno a muchos y muchos a muchos", d:"Den un ejemplo de cada tipo de relación con la “Tienda La Esquina” (por ejemplo: un cliente realiza muchas ventas)."}
 ];
 const QUIZ = {
   diagnostico: [
@@ -116,14 +116,7 @@ const QUIZ = {
 };
 const COEV = ["Claridad de la presentación","Dominio del tema","Uso del caso “Tienda La Esquina”","Trabajo en equipo"];
 const COTEJO = ["Define qué es una base de datos.","Explica la función de un SGBD.","Distingue una base de datos relacional de una NoSQL.","Clasifica correctamente ejemplos de SGBD.","Identifica la clave primaria de una tabla.","Crea una base de datos y una tabla con clave primaria en MySQL Workbench."];
-const RUB = [
-  ["Dominio del tema",20,["Explica todos los conceptos con precisión y ejemplos propios.","Explica los conceptos con algún error menor.","Explica los conceptos de forma incompleta.","No explica los conceptos o lo hace con errores graves."]],
-  ["Aplicación al caso “Tienda La Esquina”",20,["Relaciona todo su trabajo con el caso de forma correcta.","Relaciona la mayor parte con el caso.","Relaciona poco su trabajo con el caso.","No usa el caso."]],
-  ["Precisión técnica del producto",20,["Conceptos, tablas, claves y relaciones correctos.","Uno o dos errores menores.","Varios errores que requieren corrección.","El producto no es funcional o está incompleto."]],
-  ["Uso de herramientas",15,["Usa MySQL Workbench o el diagrama con dominio y sin ayuda.","Usa la herramienta con poca ayuda.","Necesita ayuda frecuente.","No logra usar la herramienta."]],
-  ["Claridad de la presentación",15,["Presenta en 2 minutos, con orden y lenguaje claro.","Presenta con orden, pero se extiende o duda.","La presentación es desordenada.","No presenta o no se entiende."]],
-  ["Trabajo en equipo y adhesión a las normas",10,["Todos participan y respetan los acuerdos.","La mayoría participa y respeta los acuerdos.","Participan pocos o se recuerdan los acuerdos.","No colaboran ni respetan los acuerdos."]]
-];
+const RUB = [["Define el concepto de base de datos y de SGBD", 20, ["Define ambos conceptos con precisión y da un ejemplo propio con la “Tienda La Esquina”.", "Define ambos conceptos con un error menor o sin ejemplo.", "Define solo uno de los dos conceptos o lo hace de forma incompleta.", "No logra definir los conceptos."]], ["Clasifica los tipos de bases de datos", 20, ["Distingue relacionales y NoSQL, y clasifica bien los 5 SGBD del cuadro.", "Distingue ambos tipos y clasifica correctamente 4 de los 5 SGBD.", "Clasifica correctamente solo 2 o 3 SGBD.", "Confunde los tipos o clasifica 1 SGBD o ninguno."]], ["Identifica tablas relacionales y claves primarias", 20, ["Identifica filas, columnas y la clave primaria de la tabla clientes, y explica por qué debe ser única y no nula.", "Identifica filas, columnas y la clave primaria, pero su explicación es incompleta.", "Identifica filas y columnas, pero no la clave primaria.", "No identifica los elementos de la tabla."]], ["Explica los tipos de relaciones", 20, ["Explica las relaciones 1:1, 1:N y N:M con un ejemplo correcto de cada una en la “Tienda La Esquina”.", "Explica los tres tipos, pero uno de sus ejemplos es incorrecto.", "Explica solo uno o dos tipos de relación.", "No distingue los tipos de relación."]], ["Desarrolla una base de datos relacional en MySQL Workbench", 20, ["Crea la base de datos y la tabla clientes con clave primaria, tipos de datos y NOT NULL, sin errores.", "La crea con un error menor que corrige por sí mismo.", "Necesita ayuda para que la base de datos y la tabla funcionen.", "No logra crear la base de datos ni la tabla."]]];
 const PCT = [1,.8,.6,.3];
 const LEVELS = ["Excelente","Bueno","Suficiente","Deficiente"];
 const ACUERDOS = ["Puntualidad","Celular en silencio","Respeto a las opiniones","Participación activa","Cuidado de los equipos","Trabajo en equipo"];
@@ -146,8 +139,8 @@ function vInicio(){
   const g = (title, items) => `<div class="stage">${title}</div><div class="grid">${items.map(([k,d]) => `<a class="tile" href="#${k}"><b>${VIEWS.find(v=>v[0]===k)[1]}</b><span>${d}</span></a>`).join("")}</div>`;
   app.innerHTML = `<h2>Recursos de la práctica</h2><p class="lead">Todo lo que se usa en clase, ordenado por momento. Los datos que se registran quedan guardados en este navegador.</p>
   ${g("Inicio de curso",[["expectativas","Registrar las expectativas del grupo."],["diagnostico","5 preguntas de conocimientos previos."]])}
-  ${g("Desarrollo de sesión",[["comunidades","Temas y tareas de Ámbar, Esmeralda, Perla y Larimar."],["coevaluacion","Escala del 1 al 4 entre comunidades."]])}
-  ${g("Cierre de sesión",[["cierre","5 preguntas sobre lo aprendido."],["cotejo","Indicadores sí/no por participante."],["rubrica","Productos de las comunidades, 100 puntos."]])}
+  ${g("Desarrollo de sesión",[["comunidades","Temas y tareas de MySQL, PostgreSQL, Oracle y MongoDB."],["rubrica","Instrumento de evaluación del tema: 5 criterios, 100 puntos."]])}
+  ${g("Retroalimentación",[["cierre","5 preguntas para comprobar lo aprendido."]])}
   ${g("Cierre de curso",[["expectativas","Verificar si se cumplieron."],["acuerdos","Valorar cada acuerdo del 1 al 10."]])}
   <div class="panel row" id="share" style="margin-top:22px" hidden><div id="qr" style="background:#fff;padding:6px;border-radius:8px"></div><div><b>Comparte esta página</b><br><span class="muted">Escanea el código para abrir los recursos en el teléfono.</span><br><span class="muted" id="url"></span></div></div>`;
   drawShareQR();
@@ -185,10 +178,10 @@ function vExpectativas(){
 function vQuiz(kind){
   const Q = QUIZ[kind]; let i = 0, pts = 0, answered = false;
   const title = kind==="diagnostico" ? "Cuestionario diagnóstico" : "Cuestionario de cierre";
-  const lead = kind==="diagnostico" ? "Conocimientos previos. No lleva calificación." : "Lo aprendido hoy. Cada pregunta vale 20 puntos.";
+  const lead = kind==="diagnostico" ? "Conocimientos previos. No lleva calificación." : "Retroalimentación de lo aprendido hoy. No lleva calificación.";
   const render = () => {
     if (i >= Q.length){
-      app.innerHTML = `<h2>${title}</h2><div class="panel"><p class="muted">Resultado</p><div class="score">${pts} / ${Q.length}${kind==="cierre"?` · ${pts*20} puntos`:""}</div><p><button class="primary" id="again">Volver a empezar</button></p></div>`;
+      app.innerHTML = `<h2>${title}</h2><div class="panel"><p class="muted">Resultado</p><div class="score">${pts} / ${Q.length} correctas</div><p><button class="primary" id="again">Volver a empezar</button></p></div>`;
       document.getElementById("again").onclick = () => { i=0; pts=0; answered=false; render(); };
       return;
     }
@@ -264,7 +257,7 @@ function vRubrica(){
     const sel = S.rubrica[cur] || (S.rubrica[cur] = RUB.map(()=>-1));
     const total = sel.reduce((a,l,k)=> a + (l<0?0:Math.round(RUB[k][1]*PCT[l])), 0);
     const done = !sel.includes(-1);
-    app.innerHTML = `<h2>Rúbrica analítica</h2><p class="lead">Productos y presentación de las comunidades. Toca el nivel de cada criterio. Califica con 60 puntos o más.</p>
+    app.innerHTML = `<h2>Rúbrica analítica: fundamentos de bases de datos</h2><p class="lead">Instrumento de evaluación del tema del día. Se aplica a cada comunidad durante la presentación de su producto y la práctica en MySQL Workbench. Toca el nivel de cada criterio. Califica con 60 puntos o más.</p>
     <div class="tabs">${COMS.map(c=>`<button class="${c.n===cur?"primary":""}" data-c="${c.n}">${c.n}</button>`).join("")}</div>
     <div class="panel scroll"><table><tr><th>Criterio</th>${LEVELS.map((l,i)=>`<th>${l}</th>`).join("")}</tr>
     ${RUB.map(([c,max,d],k)=>`<tr><td><b>${c}</b><br><span class="muted">${max} puntos</span></td>${d.map((t,l)=>`<td class="lvl ${sel[k]===l?"sel":""}" data-k="${k}" data-l="${l}">${t}<br><b>${Math.round(max*PCT[l])} pts</b></td>`).join("")}</tr>`).join("")}
@@ -283,7 +276,7 @@ function vAcuerdos(){
   draw();
 }
 
-const ROUTES = {inicio:vInicio, expectativas:vExpectativas, diagnostico:()=>vQuiz("diagnostico"), cierre:()=>vQuiz("cierre"), comunidades:vComunidades, coevaluacion:vCoev, cotejo:vCotejo, rubrica:vRubrica, acuerdos:vAcuerdos};
+const ROUTES = {inicio:vInicio, expectativas:vExpectativas, diagnostico:()=>vQuiz("diagnostico"), cierre:()=>vQuiz("cierre"), comunidades:vComunidades, rubrica:vRubrica, acuerdos:vAcuerdos};
 function route(){ const k = (location.hash||"").slice(1); const v = ROUTES[k] ? k : "inicio"; nav(v); ROUTES[v](); window.scrollTo(0,0); }
 window.addEventListener("hashchange", route);
 route();
