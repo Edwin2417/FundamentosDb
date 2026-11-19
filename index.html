@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Recursos de clase · Fundamentos y representación de bases de datos</title>
+<title>Recursos de clase · Fundamentos de bases de datos</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>💾</text></svg>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -81,7 +81,7 @@ td.lvl.sel{background:var(--amber);color:#1B1F2A}
 </head>
 <body>
 <header>
-  <h1>Fundamentos y representación de bases de datos</h1>
+  <h1>Fundamentos de bases de datos</h1>
   <p>Recursos de clase · Facilitador: Edwin David Díaz Mendoza · INFOTEP Regional Valdesia</p>
   <nav id="nav"></nav>
 </header>
@@ -94,9 +94,9 @@ const VIEWS = [
 ];
 const COMS = [
   {n:"Ámbar", c:"var(--ambar)", t:"Tipos de bases de datos y SGBD", d:"Elaboren un cuadro comparativo con MySQL, PostgreSQL, Oracle, MongoDB y Redis: tipo (relacional o NoSQL), uso típico y un ejemplo."},
-  {n:"Esmeralda", c:"var(--esmeralda)", t:"Entidades, atributos y tipos de datos", d:"Identifiquen las entidades de la “Tienda La Esquina” (clientes, productos, ventas, detalle_venta), sus atributos y el tipo de dato de cada uno."},
-  {n:"Perla", c:"var(--perla)", t:"Claves primarias y compuestas", d:"Creen en MySQL Workbench las tablas clientes y productos con su clave primaria y expliquen por qué detalle_venta usa una clave compuesta."},
-  {n:"Larimar", c:"var(--larimar)", t:"Relaciones e integridad referencial", d:"Dibujen el diagrama entidad-relación de la tienda, indiquen las relaciones 1:1, 1:N y N:M, y expliquen qué hace la clave foránea."}
+  {n:"Esmeralda", c:"var(--esmeralda)", t:"Tablas relacionales", d:"Con la tabla clientes de la “Tienda La Esquina”, identifiquen qué es una fila, qué es una columna y qué valores no se pueden repetir."},
+  {n:"Perla", c:"var(--perla)", t:"Valores únicos y claves primarias", d:"Creen en MySQL Workbench la tabla clientes con su clave primaria y expliquen por qué la clave debe ser única y no nula."},
+  {n:"Larimar", c:"var(--larimar)", t:"Relaciones uno a uno, uno a muchos y muchos a muchos", d:"Den un ejemplo de cada tipo de relación con la “Tienda La Esquina” (por ejemplo: un cliente realiza muchas ventas)."}
 ];
 const QUIZ = {
   diagnostico: [
@@ -119,7 +119,7 @@ const COTEJO = ["Define qué es una base de datos.","Explica la función de un S
 const RUB = [
   ["Dominio del tema",20,["Explica todos los conceptos con precisión y ejemplos propios.","Explica los conceptos con algún error menor.","Explica los conceptos de forma incompleta.","No explica los conceptos o lo hace con errores graves."]],
   ["Aplicación al caso “Tienda La Esquina”",20,["Relaciona todo su trabajo con el caso de forma correcta.","Relaciona la mayor parte con el caso.","Relaciona poco su trabajo con el caso.","No usa el caso."]],
-  ["Precisión técnica del producto",20,["Tipos de datos, claves y relaciones correctos.","Uno o dos errores menores.","Varios errores que requieren corrección.","El producto no es funcional o está incompleto."]],
+  ["Precisión técnica del producto",20,["Conceptos, tablas, claves y relaciones correctos.","Uno o dos errores menores.","Varios errores que requieren corrección.","El producto no es funcional o está incompleto."]],
   ["Uso de herramientas",15,["Usa MySQL Workbench o el diagrama con dominio y sin ayuda.","Usa la herramienta con poca ayuda.","Necesita ayuda frecuente.","No logra usar la herramienta."]],
   ["Claridad de la presentación",15,["Presenta en 2 minutos, con orden y lenguaje claro.","Presenta con orden, pero se extiende o duda.","La presentación es desordenada.","No presenta o no se entiende."]],
   ["Trabajo en equipo y adhesión a las normas",10,["Todos participan y respetan los acuerdos.","La mayoría participa y respeta los acuerdos.","Participan pocos o se recuerdan los acuerdos.","No colaboran ni respetan los acuerdos."]]
@@ -148,7 +148,7 @@ function vInicio(){
   ${g("Inicio de curso",[["expectativas","Registrar las expectativas del grupo."],["diagnostico","5 preguntas de conocimientos previos."]])}
   ${g("Desarrollo de sesión",[["comunidades","Temas y tareas de Ámbar, Esmeralda, Perla y Larimar."],["coevaluacion","Escala del 1 al 4 entre comunidades."]])}
   ${g("Cierre de sesión",[["cierre","5 preguntas sobre lo aprendido."],["cotejo","Indicadores sí/no por participante."],["rubrica","Productos de las comunidades, 100 puntos."]])}
-  ${g("Cierre de curso",[["expectativas","Verificar si se cumplieron."],["acuerdos","Valorar cada acuerdo del 1 al 5."]])}
+  ${g("Cierre de curso",[["expectativas","Verificar si se cumplieron."],["acuerdos","Valorar cada acuerdo del 1 al 10."]])}
   <div class="panel row" id="share" style="margin-top:22px" hidden><div id="qr" style="background:#fff;padding:6px;border-radius:8px"></div><div><b>Comparte esta página</b><br><span class="muted">Escanea el código para abrir los recursos en el teléfono.</span><br><span class="muted" id="url"></span></div></div>`;
   drawShareQR();
 }
@@ -276,9 +276,9 @@ function vRubrica(){
 }
 
 function vAcuerdos(){
-  app.innerHTML = `<h2>Acuerdos de convivencia</h2><p class="lead">En el cierre de curso, el grupo valora cada acuerdo del 1 (no se cumplió) al 5 (se cumplió siempre).</p><div class="panel"><ul class="list" id="al"></ul></div>`;
+  app.innerHTML = `<h2>Acuerdos de convivencia</h2><p class="lead">En el cierre de curso, el grupo valora cada acuerdo del 1 (no se cumplió) al 10 (se cumplió siempre). Cada punto equivale a 10 %.</p><div class="panel"><ul class="list" id="al"></ul></div>`;
   const al = document.getElementById("al");
-  const draw = () => { al.innerHTML = ACUERDOS.map(a=>`<li><span>${a}</span><div class="chips">${[1,2,3,4,5].map(v=>`<button class="chip ${S.acuerdos[a]===v?"sel":""}" data-a="${a}" data-v="${v}">${v}</button>`).join("")}</div></li>`).join("");
+  const draw = () => { al.innerHTML = ACUERDOS.map(a=>`<li><span>${a}</span><div class="chips">${[1,2,3,4,5,6,7,8,9,10].map(v=>`<button class="chip ${S.acuerdos[a]===v?"sel":""}" data-a="${a}" data-v="${v}">${v}</button>`).join("")}${S.acuerdos[a]?`<b style="margin-left:8px">${S.acuerdos[a]*10} %</b>`:""}</div></li>`).join("");
     al.querySelectorAll("button").forEach(b => b.onclick = () => { S.acuerdos[b.dataset.a] = +b.dataset.v; save(); draw(); }); };
   draw();
 }
