@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Recursos de clase · Fundamentos y representación de bases de datos</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>💾</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F5F7FA; --surface:#FFFFFF; --ink:#16233F; --muted:#5D6B82; --line:#D7DEE8;
+  --navy:#13294B; --navy-ink:#FFFFFF; --amber:#F2A900; --green:#2E9E5B; --red:#C0392B; --soft:#EAF0F7;
+  --ambar:#E39B12; --esmeralda:#1E8E57; --perla:#8C83AE; --larimar:#2F9DD0;
+  color-scheme: light;
+  box-sizing:border-box; padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0F1726; --surface:#18233A; --ink:#E8EEF8; --muted:#A3B0C6; --line:#2C3A55;
+    --navy:#203A66; --navy-ink:#FFFFFF; --soft:#1F2C47; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0F1726; --surface:#18233A; --ink:#E8EEF8; --muted:#A3B0C6; --line:#2C3A55;
+  --navy:#203A66; --navy-ink:#FFFFFF; --soft:#1F2C47; color-scheme: dark;
+}
+*,*::before,*::after{box-sizing:inherit}
+[hidden]{display:none!important}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Atkinson Hyperlegible",Arial,Helvetica,sans-serif;font-size:18px;line-height:1.5}
+header{background:var(--navy);color:var(--navy-ink);padding:20px 24px 0}
+header h1{margin:0;font-size:1.45rem;line-height:1.25}
+header p{margin:4px 0 14px;opacity:.85;font-size:.95rem}
+nav{display:flex;gap:6px;overflow-x:auto;padding-bottom:0}
+nav a{color:var(--navy-ink);text-decoration:none;padding:10px 14px;border-radius:10px 10px 0 0;white-space:nowrap;font-size:.95rem;opacity:.8}
+nav a.on{background:var(--bg);color:var(--ink);opacity:1;font-weight:700}
+main{max-width:1000px;margin:0 auto;padding:24px}
+h2{font-size:1.6rem;margin:0 0 6px}
+.lead{color:var(--muted);margin:0 0 20px}
+.grid{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
+.tile{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px;text-decoration:none;color:var(--ink);display:block}
+.tile b{display:block;font-size:1.05rem}
+.tile span{color:var(--muted);font-size:.92rem}
+.stage{margin:22px 0 8px;font-weight:700;color:var(--muted)}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:20px;margin-bottom:16px}
+button,select,input[type=text]{font:inherit;color:var(--ink)}
+button{cursor:pointer;border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:10px 16px}
+button.primary{background:var(--navy);color:var(--navy-ink);border-color:var(--navy)}
+button.sel{outline:3px solid var(--amber);outline-offset:-1px}
+input[type=text],select{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px 12px;width:100%}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.row>input{flex:1;min-width:200px}
+.q-num{color:var(--muted);font-size:.95rem}
+.q-text{font-size:1.5rem;font-weight:700;margin:6px 0 18px}
+.opts{display:grid;gap:10px}
+.opt{text-align:left;padding:14px 16px;font-size:1.1rem}
+.opt.ok{background:var(--green);color:#fff;border-color:var(--green)}
+.opt.bad{background:var(--red);color:#fff;border-color:var(--red)}
+.feedback{margin:14px 0 0;font-weight:700}
+.score{font-size:2.6rem;font-weight:700;color:var(--green)}
+.list{list-style:none;padding:0;margin:0}
+.list li{display:flex;gap:10px;align-items:center;justify-content:space-between;border-bottom:1px solid var(--line);padding:10px 0;flex-wrap:wrap}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chip{padding:6px 10px;font-size:.88rem}
+.scroll{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:.95rem}
+th,td{border:1px solid var(--line);padding:8px 10px;vertical-align:top;text-align:left}
+th{background:var(--soft)}
+td.lvl{cursor:pointer}
+td.lvl.sel{background:var(--amber);color:#1B1F2A}
+.com{border-left:8px solid var(--c);background:var(--surface);border-radius:12px;padding:16px;border-top:1px solid var(--line);border-right:1px solid var(--line);border-bottom:1px solid var(--line)}
+.com h3{margin:0 0 4px;color:var(--c)}
+.tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+.total{font-size:1.3rem;font-weight:700}
+.muted{color:var(--muted)}
+.empty{color:var(--muted);font-style:italic}
+@media (max-width:600px){ main{padding:16px} .q-text{font-size:1.25rem} }
+</style>
+</head>
+<body>
+<header>
+  <h1>Fundamentos y representación de bases de datos</h1>
+  <p>Recursos de clase · Facilitador: Edwin David Díaz Mendoza · INFOTEP Regional Valdesia</p>
+  <nav id="nav"></nav>
+</header>
+<main id="app"></main>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script>
+const VIEWS = [
+  ["inicio","Inicio"],["expectativas","Expectativas"],["diagnostico","Cuestionario diagnóstico"],["comunidades","Comunidades"],
+  ["coevaluacion","Coevaluación"],["cierre","Cuestionario de cierre"],["cotejo","Lista de cotejo"],["rubrica","Rúbrica"],["acuerdos","Acuerdos"]
+];
+const COMS = [
+  {n:"Ámbar", c:"var(--ambar)", t:"Tipos de bases de datos y SGBD", d:"Elaboren un cuadro comparativo con MySQL, PostgreSQL, Oracle, MongoDB y Redis: tipo (relacional o NoSQL), uso típico y un ejemplo."},
+  {n:"Esmeralda", c:"var(--esmeralda)", t:"Entidades, atributos y tipos de datos", d:"Identifiquen las entidades de la “Tienda La Esquina” (clientes, productos, ventas, detalle_venta), sus atributos y el tipo de dato de cada uno."},
+  {n:"Perla", c:"var(--perla)", t:"Claves primarias y compuestas", d:"Creen en MySQL Workbench las tablas clientes y productos con su clave primaria y expliquen por qué detalle_venta usa una clave compuesta."},
+  {n:"Larimar", c:"var(--larimar)", t:"Relaciones e integridad referencial", d:"Dibujen el diagrama entidad-relación de la tienda, indiquen las relaciones 1:1, 1:N y N:M, y expliquen qué hace la clave foránea."}
+];
+const QUIZ = {
+  diagnostico: [
+    ["¿Qué es un dato?", ["Un hecho o valor sin procesar","Un programa de computadora","Un informe terminado","Una impresora"], 0, "Un dato es un hecho o valor aislado, como un precio o un nombre."],
+    ["¿Dónde se organizan los datos en filas y columnas?", ["En un párrafo","En una tabla","En una imagen","En un correo"], 1, "Las tablas organizan los datos en filas (registros) y columnas (campos)."],
+    ["¿Cuál de estos es un ejemplo de base de datos?", ["Una canción","Un teclado","El registro de clientes de una tienda","Un video"], 2, "El registro de clientes guarda datos organizados y relacionados."],
+    ["¿Qué dato identifica de forma única a una persona?", ["El nombre","La edad","El color favorito","La cédula"], 3, "La cédula no se repite: funciona como una clave."],
+    ["¿Qué programa sirve para gestionar bases de datos?", ["Paint","MySQL","Calculadora","Bloc de notas"], 1, "MySQL es un sistema gestor de bases de datos (SGBD)."]
+  ],
+  cierre: [
+    ["Un SGBD es…", ["Una tabla","El programa que crea, guarda y consulta la base de datos","Una clave primaria","Un tipo de dato"], 1, "SGBD significa sistema gestor de bases de datos, como MySQL o PostgreSQL."],
+    ["MongoDB es una base de datos…", ["Relacional","NoSQL","En papel","De hoja de cálculo"], 1, "MongoDB guarda documentos; es NoSQL."],
+    ["La clave primaria debe ser…", ["Repetida","Opcional","Única y no nula","Siempre de texto"], 2, "Identifica cada fila: no se repite ni queda vacía."],
+    ["La “A” de ACID significa…", ["Acceso","Atomicidad","Almacenamiento","Actualización"], 1, "Atomicidad: la transacción se guarda completa o no se guarda."],
+    ["La relación entre ventas y productos es…", ["Uno a uno","Uno a muchos","Muchos a muchos, mediante detalle_venta","No tienen relación"], 2, "Una venta tiene muchos productos y un producto está en muchas ventas."]
+  ]
+};
+const COEV = ["Claridad de la presentación","Dominio del tema","Uso del caso “Tienda La Esquina”","Trabajo en equipo"];
+const COTEJO = ["Define qué es una base de datos.","Explica la función de un SGBD.","Distingue una base de datos relacional de una NoSQL.","Clasifica correctamente ejemplos de SGBD.","Identifica la clave primaria de una tabla.","Crea una base de datos y una tabla con clave primaria en MySQL Workbench."];
+const RUB = [
+  ["Dominio del tema",20,["Explica todos los conceptos con precisión y ejemplos propios.","Explica los conceptos con algún error menor.","Explica los conceptos de forma incompleta.","No explica los conceptos o lo hace con errores graves."]],
+  ["Aplicación al caso “Tienda La Esquina”",20,["Relaciona todo su trabajo con el caso de forma correcta.","Relaciona la mayor parte con el caso.","Relaciona poco su trabajo con el caso.","No usa el caso."]],
+  ["Precisión técnica del producto",20,["Tipos de datos, claves y relaciones correctos.","Uno o dos errores menores.","Varios errores que requieren corrección.","El producto no es funcional o está incompleto."]],
+  ["Uso de herramientas",15,["Usa MySQL Workbench o el diagrama con dominio y sin ayuda.","Usa la herramienta con poca ayuda.","Necesita ayuda frecuente.","No logra usar la herramienta."]],
+  ["Claridad de la presentación",15,["Presenta en 2 minutos, con orden y lenguaje claro.","Presenta con orden, pero se extiende o duda.","La presentación es desordenada.","No presenta o no se entiende."]],
+  ["Trabajo en equipo y adhesión a las normas",10,["Todos participan y respetan los acuerdos.","La mayoría participa y respeta los acuerdos.","Participan pocos o se recuerdan los acuerdos.","No colaboran ni respetan los acuerdos."]]
+];
+const PCT = [1,.8,.6,.3];
+const LEVELS = ["Excelente","Bueno","Suficiente","Deficiente"];
+const ACUERDOS = ["Puntualidad","Celular en silencio","Respeto a las opiniones","Participación activa","Cuidado de los equipos","Trabajo en equipo"];
+
+// ---------- estado local (solo en este navegador) ----------
+const KEY = "recursos-bd-v1";
+let S = {expectativas:[], coev:[], cotejo:[], rubrica:{}, acuerdos:{}};
+try { const raw = localStorage.getItem(KEY); if (raw) S = Object.assign(S, JSON.parse(raw)); } catch(e) {}
+function save(){ try { localStorage.setItem(KEY, JSON.stringify(S)); } catch(e) {} }
+const el = (h) => { const t = document.createElement("template"); t.innerHTML = h.trim(); return t.content.firstChild; };
+const esc = (s) => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const app = document.getElementById("app");
+
+function nav(cur){
+  document.getElementById("nav").innerHTML = VIEWS.map(([k,l]) => `<a href="#${k}" class="${k===cur?"on":""}">${l}</a>`).join("");
+}
+
+// ---------- vistas ----------
+function vInicio(){
+  const g = (title, items) => `<div class="stage">${title}</div><div class="grid">${items.map(([k,d]) => `<a class="tile" href="#${k}"><b>${VIEWS.find(v=>v[0]===k)[1]}</b><span>${d}</span></a>`).join("")}</div>`;
+  app.innerHTML = `<h2>Recursos de la práctica</h2><p class="lead">Todo lo que se usa en clase, ordenado por momento. Los datos que se registran quedan guardados en este navegador.</p>
+  ${g("Inicio de curso",[["expectativas","Registrar las expectativas del grupo."],["diagnostico","5 preguntas de conocimientos previos."]])}
+  ${g("Desarrollo de sesión",[["comunidades","Temas y tareas de Ámbar, Esmeralda, Perla y Larimar."],["coevaluacion","Escala del 1 al 4 entre comunidades."]])}
+  ${g("Cierre de sesión",[["cierre","5 preguntas sobre lo aprendido."],["cotejo","Indicadores sí/no por participante."],["rubrica","Productos de las comunidades, 100 puntos."]])}
+  ${g("Cierre de curso",[["expectativas","Verificar si se cumplieron."],["acuerdos","Valorar cada acuerdo del 1 al 5."]])}
+  <div class="panel row" id="share" style="margin-top:22px" hidden><div id="qr" style="background:#fff;padding:6px;border-radius:8px"></div><div><b>Comparte esta página</b><br><span class="muted">Escanea el código para abrir los recursos en el teléfono.</span><br><span class="muted" id="url"></span></div></div>`;
+  drawShareQR();
+}
+
+function drawShareQR(){
+  const box = document.getElementById("share");
+  if (!box || !/^https?:/.test(location.protocol) || typeof QRCode === "undefined") return;
+  const url = location.href.split("#")[0];
+  try { new QRCode(document.getElementById("qr"), { text: url, width: 150, height: 150, colorDark: "#13294B", colorLight: "#FFFFFF" });
+    document.getElementById("url").textContent = url; box.hidden = false; } catch(e) {}
+}
+
+function vExpectativas(){
+  const estados = ["Cumplida","En parte","No cumplida"];
+  app.innerHTML = `<h2>Mural de expectativas</h2><p class="lead">Al inicio, escribe cada expectativa que comparta el grupo. En el cierre de curso, marca si se cumplió.</p>
+  <div class="panel"><div class="row"><input type="text" id="exp" placeholder="¿Qué espero aprender y para qué lo usaré?"><button class="primary" id="add">Agregar</button></div></div>
+  <div class="panel"><ul class="list" id="lst"></ul></div>`;
+  const lst = document.getElementById("lst");
+  const render = () => {
+    lst.innerHTML = S.expectativas.length ? "" : `<li class="empty">Todavía no hay expectativas.</li>`;
+    S.expectativas.forEach((x,i) => {
+      const li = el(`<li><span>${esc(x.t)}</span><div class="chips">${estados.map(e => `<button class="chip ${x.e===e?"sel":""}" data-e="${e}">${e}</button>`).join("")}<button class="chip" data-del>Quitar</button></div></li>`);
+      li.querySelectorAll("[data-e]").forEach(b => b.onclick = () => { x.e = x.e===b.dataset.e ? "" : b.dataset.e; save(); render(); });
+      li.querySelector("[data-del]").onclick = () => { S.expectativas.splice(i,1); save(); render(); };
+      lst.appendChild(li);
+    });
+  };
+  const add = () => { const v = document.getElementById("exp").value.trim(); if (!v) return; S.expectativas.push({t:v,e:""}); save(); document.getElementById("exp").value=""; render(); };
+  document.getElementById("add").onclick = add;
+  document.getElementById("exp").onkeydown = (e) => { if (e.key==="Enter") add(); };
+  render();
+}
+
+function vQuiz(kind){
+  const Q = QUIZ[kind]; let i = 0, pts = 0, answered = false;
+  const title = kind==="diagnostico" ? "Cuestionario diagnóstico" : "Cuestionario de cierre";
+  const lead = kind==="diagnostico" ? "Conocimientos previos. No lleva calificación." : "Lo aprendido hoy. Cada pregunta vale 20 puntos.";
+  const render = () => {
+    if (i >= Q.length){
+      app.innerHTML = `<h2>${title}</h2><div class="panel"><p class="muted">Resultado</p><div class="score">${pts} / ${Q.length}${kind==="cierre"?` · ${pts*20} puntos`:""}</div><p><button class="primary" id="again">Volver a empezar</button></p></div>`;
+      document.getElementById("again").onclick = () => { i=0; pts=0; answered=false; render(); };
+      return;
+    }
+    const [q, opts, ok, why] = Q[i];
+    app.innerHTML = `<h2>${title}</h2><p class="lead">${lead}</p><div class="panel"><div class="q-num">Pregunta ${i+1} de ${Q.length}</div><div class="q-text">${q}</div>
+      <div class="opts">${opts.map((o,k)=>`<button class="opt" data-k="${k}">${String.fromCharCode(65+k)}. ${o}</button>`).join("")}</div>
+      <div class="feedback" id="fb"></div><p><button class="primary" id="next" hidden>Siguiente</button></p></div>`;
+    app.querySelectorAll(".opt").forEach(b => b.onclick = () => {
+      if (answered) return; answered = true; const k = +b.dataset.k;
+      app.querySelectorAll(".opt")[ok].classList.add("ok");
+      if (k===ok){ pts++; document.getElementById("fb").textContent = "¡Correcto! " + why; }
+      else { b.classList.add("bad"); document.getElementById("fb").textContent = "No es correcto. " + why; }
+      document.getElementById("next").hidden = false;
+    });
+    document.getElementById("next").onclick = () => { i++; answered=false; render(); };
+  };
+  render();
+}
+
+function vComunidades(){
+  app.innerHTML = `<h2>Comunidades de aprendizaje</h2><p class="lead">Tiempo de trabajo: 10 minutos. Luego cada comunidad presenta en 2 minutos.</p>
+  <div class="grid">${COMS.map(c => `<div class="com" style="--c:${c.c}"><h3>${c.n}</h3><b>${c.t}</b><p>${c.d}</p></div>`).join("")}</div>`;
+}
+
+function vCoev(){
+  const names = COMS.map(c=>c.n);
+  let pick = [0,0,0,0];
+  app.innerHTML = `<h2>Escala de coevaluación</h2><p class="lead">Una comunidad evalúa a otra. 4 = Excelente · 3 = Bueno · 2 = Regular · 1 = Por mejorar.</p>
+  <div class="panel"><div class="grid"><label>Comunidad que evalúa<select id="ev">${names.map(n=>`<option>${n}</option>`).join("")}</select></label>
+  <label>Comunidad evaluada<select id="ed">${names.map((n,k)=>`<option ${k===1?"selected":""}>${n}</option>`).join("")}</select></label></div>
+  <div id="crit" style="margin-top:14px"></div><p><button class="primary" id="sv">Guardar coevaluación</button> <span class="muted" id="msg"></span></p></div>
+  <div class="panel"><b>Resultados</b><div class="scroll" id="res"></div></div>`;
+  const crit = document.getElementById("crit");
+  const drawCrit = () => { crit.innerHTML = COEV.map((c,k)=>`<div class="row" style="justify-content:space-between;border-bottom:1px solid var(--line);padding:8px 0"><span>${c}</span><div class="chips">${[1,2,3,4].map(v=>`<button class="chip ${pick[k]===v?"sel":""}" data-k="${k}" data-v="${v}">${v}</button>`).join("")}</div></div>`).join("");
+    crit.querySelectorAll("button").forEach(b => b.onclick = () => { pick[+b.dataset.k] = +b.dataset.v; drawCrit(); }); };
+  const drawRes = () => {
+    const res = document.getElementById("res");
+    if (!S.coev.length){ res.innerHTML = `<p class="empty">Aún no hay coevaluaciones.</p>`; return; }
+    res.innerHTML = `<table><tr><th>Evaluada</th><th>Evaluó</th>${COEV.map(c=>`<th>${c}</th>`).join("")}<th>Total (16)</th><th></th></tr>${S.coev.map((r,i)=>`<tr><td>${r.ed}</td><td>${r.ev}</td>${r.v.map(x=>`<td>${x}</td>`).join("")}<td><b>${r.v.reduce((a,b)=>a+b,0)}</b></td><td><button class="chip" data-del="${i}">Quitar</button></td></tr>`).join("")}</table>`;
+    res.querySelectorAll("[data-del]").forEach(b => b.onclick = () => { S.coev.splice(+b.dataset.del,1); save(); drawRes(); });
+  };
+  document.getElementById("sv").onclick = () => {
+    const ev = document.getElementById("ev").value, ed = document.getElementById("ed").value, msg = document.getElementById("msg");
+    if (ev===ed){ msg.textContent = "Una comunidad no puede evaluarse a sí misma."; return; }
+    if (pick.includes(0)){ msg.textContent = "Marca un valor en cada criterio."; return; }
+    S.coev.push({ev,ed,v:pick.slice()}); save(); pick=[0,0,0,0]; msg.textContent = "Guardado."; drawCrit(); drawRes();
+  };
+  drawCrit(); drawRes();
+}
+
+function vCotejo(){
+  app.innerHTML = `<h2>Lista de cotejo</h2><p class="lead">Fundamentos de bases de datos. Marca sí cuando el participante cumple el indicador.</p>
+  <div class="panel"><div class="row"><input type="text" id="pn" placeholder="Nombre del participante"><button class="primary" id="pa">Agregar</button></div></div>
+  <div class="panel scroll" id="tb"></div>`;
+  const draw = () => {
+    const tb = document.getElementById("tb");
+    if (!S.cotejo.length){ tb.innerHTML = `<p class="empty">Agrega participantes para usar la lista.</p><table><tr><th>No.</th><th>Indicador</th></tr>${COTEJO.map((c,k)=>`<tr><td>${k+1}</td><td>${c}</td></tr>`).join("")}</table>`; return; }
+    tb.innerHTML = `<table><tr><th>Indicador</th>${S.cotejo.map((p,i)=>`<th>${esc(p.n)} <button class="chip" data-del="${i}">Quitar</button></th>`).join("")}</tr>
+    ${COTEJO.map((c,k)=>`<tr><td>${k+1}. ${c}</td>${S.cotejo.map((p,i)=>`<td><label><input type="checkbox" data-i="${i}" data-k="${k}" ${p.c[k]?"checked":""}> Sí</label></td>`).join("")}</tr>`).join("")}
+    <tr><th>Total</th>${S.cotejo.map(p=>`<th>${p.c.filter(Boolean).length} / ${COTEJO.length}</th>`).join("")}</tr></table>`;
+    tb.querySelectorAll("input[type=checkbox]").forEach(x => x.onchange = () => { S.cotejo[+x.dataset.i].c[+x.dataset.k] = x.checked; save(); draw(); });
+    tb.querySelectorAll("[data-del]").forEach(b => b.onclick = () => { S.cotejo.splice(+b.dataset.del,1); save(); draw(); });
+  };
+  const add = () => { const v = document.getElementById("pn").value.trim(); if (!v) return; S.cotejo.push({n:v,c:COTEJO.map(()=>false)}); save(); document.getElementById("pn").value=""; draw(); };
+  document.getElementById("pa").onclick = add; document.getElementById("pn").onkeydown = e => { if (e.key==="Enter") add(); };
+  draw();
+}
+
+function vRubrica(){
+  let cur = COMS[0].n;
+  const scale = (t) => t>=90?"Excelente":t>=80?"Muy bueno":t>=70?"Bueno":t>=60?"Suficiente":"Deficiente";
+  const draw = () => {
+    const sel = S.rubrica[cur] || (S.rubrica[cur] = RUB.map(()=>-1));
+    const total = sel.reduce((a,l,k)=> a + (l<0?0:Math.round(RUB[k][1]*PCT[l])), 0);
+    const done = !sel.includes(-1);
+    app.innerHTML = `<h2>Rúbrica analítica</h2><p class="lead">Productos y presentación de las comunidades. Toca el nivel de cada criterio. Califica con 60 puntos o más.</p>
+    <div class="tabs">${COMS.map(c=>`<button class="${c.n===cur?"primary":""}" data-c="${c.n}">${c.n}</button>`).join("")}</div>
+    <div class="panel scroll"><table><tr><th>Criterio</th>${LEVELS.map((l,i)=>`<th>${l}</th>`).join("")}</tr>
+    ${RUB.map(([c,max,d],k)=>`<tr><td><b>${c}</b><br><span class="muted">${max} puntos</span></td>${d.map((t,l)=>`<td class="lvl ${sel[k]===l?"sel":""}" data-k="${k}" data-l="${l}">${t}<br><b>${Math.round(max*PCT[l])} pts</b></td>`).join("")}</tr>`).join("")}
+    </table></div><div class="panel"><span class="total">${cur}: ${total} / 100</span> <span class="muted">${done?"· "+scale(total)+(total>=60?" · Califica":" · No califica"):"· Faltan criterios por valorar"}</span></div>`;
+    app.querySelectorAll("[data-c]").forEach(b => b.onclick = () => { cur = b.dataset.c; draw(); });
+    app.querySelectorAll("td.lvl").forEach(td => td.onclick = () => { sel[+td.dataset.k] = +td.dataset.l; save(); draw(); });
+  };
+  draw();
+}
+
+function vAcuerdos(){
+  app.innerHTML = `<h2>Acuerdos de convivencia</h2><p class="lead">En el cierre de curso, el grupo valora cada acuerdo del 1 (no se cumplió) al 5 (se cumplió siempre).</p><div class="panel"><ul class="list" id="al"></ul></div>`;
+  const al = document.getElementById("al");
+  const draw = () => { al.innerHTML = ACUERDOS.map(a=>`<li><span>${a}</span><div class="chips">${[1,2,3,4,5].map(v=>`<button class="chip ${S.acuerdos[a]===v?"sel":""}" data-a="${a}" data-v="${v}">${v}</button>`).join("")}</div></li>`).join("");
+    al.querySelectorAll("button").forEach(b => b.onclick = () => { S.acuerdos[b.dataset.a] = +b.dataset.v; save(); draw(); }); };
+  draw();
+}
+
+const ROUTES = {inicio:vInicio, expectativas:vExpectativas, diagnostico:()=>vQuiz("diagnostico"), cierre:()=>vQuiz("cierre"), comunidades:vComunidades, coevaluacion:vCoev, cotejo:vCotejo, rubrica:vRubrica, acuerdos:vAcuerdos};
+function route(){ const k = (location.hash||"").slice(1); const v = ROUTES[k] ? k : "inicio"; nav(v); ROUTES[v](); window.scrollTo(0,0); }
+window.addEventListener("hashchange", route);
+route();
+</script>
+</body>
+</html>
