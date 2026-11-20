@@ -96,6 +96,19 @@ textarea{font:inherit;color:var(--ink);background:var(--surface);border:1px soli
 th.pick{cursor:pointer}
 th.pick.on{background:var(--amber);color:#1B1F2A}
 td input{width:100%;min-width:90px}
+
+.note{border-left:5px solid var(--green);background:var(--soft);border-radius:10px;padding:10px 14px;margin:10px 0;font-size:.95rem}
+.note::before{content:"Nota para explicar: ";font-weight:700;color:var(--green)}
+.hide-notes .note, .hide-notes .guion, .hide-notes .qa{display:none}
+.guion ol{margin:6px 0 0;padding-left:22px}
+.qa dt, .defs dt{font-weight:700;margin-top:8px}
+.qa dd, .defs dd{margin:2px 0 0 0;color:var(--muted)}
+tr.hl td{background:rgba(242,169,0,.25)}
+td.hc, th.hc{background:rgba(46,158,91,.18)}
+.tag{display:inline-block;font-size:.8rem;font-weight:700;padding:2px 8px;border-radius:999px;background:var(--amber);color:#1B1F2A;margin-left:6px}
+.errbox{border:2px solid var(--red);border-radius:10px;padding:10px 14px;margin:8px 0}
+.okbox{border:2px solid var(--green);border-radius:10px;padding:10px 14px;margin:8px 0}
+pre.code{white-space:pre-wrap;background:var(--soft);padding:12px;border-radius:10px;font-size:.95rem;margin:8px 0}
 @media (max-width:600px){ main{padding:16px} .q-text{font-size:1.25rem} }
 </style>
 </head>
@@ -113,10 +126,10 @@ const VIEWS = [
   ["cierre","Cuestionario de cierre"],["rubrica","Rúbrica"],["acuerdos","Acuerdos"]
 ];
 const COMS = [
-  {k:"mysql", n:"MySQL", c:"var(--ambar)", t:"Tipos de bases de datos y SGBD", d:"Clasifiquen cinco sistemas gestores como relacionales o NoSQL y den un ejemplo de uso de cada uno."},
-  {k:"postgresql", n:"PostgreSQL", c:"var(--esmeralda)", t:"Tablas relacionales", d:"Completen la tabla clientes de la “Tienda La Esquina” y expliquen qué es una fila, qué es una columna y qué valores no se repiten."},
-  {k:"oracle", n:"Oracle", c:"var(--perla)", t:"Valores únicos y claves primarias", d:"Registren clientes en una tabla con clave primaria, comprueben qué pasa si el id se repite o queda vacío y expliquen por qué."},
-  {k:"mongodb", n:"MongoDB", c:"var(--larimar)", t:"Relaciones uno a uno, uno a muchos y muchos a muchos", d:"Construyan un ejemplo de cada tipo de relación con la “Tienda La Esquina” y expliquen cómo se lee."}
+  {k:"mysql", n:"MySQL", c:"var(--ambar)", t:"Tipos de bases de datos y SGBD", d:"Revisen el cuadro comparativo ya resuelto y prepárense para explicar la diferencia entre bases de datos relacionales y NoSQL."},
+  {k:"postgresql", n:"PostgreSQL", c:"var(--esmeralda)", t:"Tablas relacionales", d:"Revisen la tabla clientes ya resuelta y prepárense para explicar qué es una fila, una columna y un valor único."},
+  {k:"oracle", n:"Oracle", c:"var(--perla)", t:"Valores únicos y claves primarias", d:"Revisen la tabla con clave primaria, los errores de ejemplo y el código SQL, y prepárense para explicar por qué la clave no se repite."},
+  {k:"mongodb", n:"MongoDB", c:"var(--larimar)", t:"Relaciones uno a uno, uno a muchos y muchos a muchos", d:"Revisen los tres ejemplos de relaciones ya resueltos y prepárense para explicar cómo se lee cada uno."}
 ];
 const QUIZ = {
   diagnostico: [
@@ -222,102 +235,105 @@ function vQuiz(kind){
 }
 
 function vComunidades(){
-  app.innerHTML = `<h2>Comunidades de aprendizaje</h2><p class="lead">Cada comunidad abre su espacio de trabajo, hace su parte en 10 minutos y la explica desde aquí en 2 minutos con el modo presentación.</p>
-  <div class="grid">${COMS.map(c => `<a class="com tile" style="--c:${c.c}" href="#c-${c.k}"><h3>${c.n}</h3><b>${c.t}</b><p>${c.d}</p><span class="card-tag">Abrir espacio de trabajo</span></a>`).join("")}</div>`;
+  app.innerHTML = `<h2>Comunidades de aprendizaje</h2><p class="lead">Cada comunidad tiene su tema ya resuelto, con notas para explicarlo. Revísenlo en 10 minutos y preséntenlo desde aquí en 2 minutos.</p>
+  <div class="grid">${COMS.map(c => `<a class="com tile" style="--c:${c.c}" href="#c-${c.k}"><h3>${c.n}</h3><b>${c.t}</b><p>${c.d}</p><span class="card-tag">Abrir el tema resuelto</span></a>`).join("")}</div>`;
 }
-function comShell(k, steps, example, inner){
+function comShell(k, intro, body, guion, qa){
   const c = COMS.find(x => x.k === k);
-  S.com = S.com || {}; S.com[k] = S.com[k] || {};
   app.innerHTML = `<div class="comhead" style="--c:${c.c}"><h2>Comunidad ${c.n}</h2><p>${c.t}</p></div>
-  <div class="row tools" style="margin-bottom:12px"><a href="#comunidades">← Todas las comunidades</a><span style="flex:1"></span><button id="tm">Iniciar 10:00</button><button class="primary" id="pm">Modo presentación</button></div>
-  <div class="panel howto"><b>Qué deben hacer</b><ol>${steps.map(x=>`<li>${x}</li>`).join("")}</ol></div>
-  <div class="example"><b>Ejemplo:</b> ${example}</div>
-  <div class="wk">${inner}</div>
-  <div class="panel"><b>Nuestra explicación</b><p class="muted" style="margin:4px 0 8px">Escriban 2 o 3 ideas clave para explicar al grupo.</p><textarea id="exp-${k}" placeholder="Idea 1… Idea 2… Idea 3…">${esc(S.com[k].exp||"")}</textarea></div>
-  <p class="tools"><button id="rs">Borrar el trabajo de esta comunidad</button></p>`;
-  document.getElementById("exp-"+k).oninput = (e) => { S.com[k].exp = e.target.value; save(); };
+  <div class="row tools" style="margin-bottom:12px"><a href="#comunidades">← Todas las comunidades</a><span style="flex:1"></span><button id="tm">Iniciar 10:00</button><button id="hn">Ocultar notas</button><button class="primary" id="pm">Modo presentación</button></div>
+  <div class="panel"><p style="margin:0">${intro}</p></div>
+  ${body}
+  <div class="panel guion"><b>Guion para explicar en 2 minutos</b><ol>${guion.map(x=>`<li>${x}</li>`).join("")}</ol></div>
+  <div class="panel qa"><b>Preguntas que les pueden hacer</b><dl>${qa.map(([q,a])=>`<dt>${q}</dt><dd>${a}</dd>`).join("")}</dl></div>`;
   document.getElementById("pm").onclick = () => { document.body.classList.toggle("present"); document.getElementById("pm").textContent = document.body.classList.contains("present") ? "Salir del modo presentación" : "Modo presentación"; };
+  document.getElementById("hn").onclick = () => { document.body.classList.toggle("hide-notes"); document.getElementById("hn").textContent = document.body.classList.contains("hide-notes") ? "Mostrar notas" : "Ocultar notas"; };
   let left = 600, timer = null; const tm = document.getElementById("tm");
   tm.onclick = () => { if (timer) { clearInterval(timer); timer = null; tm.textContent = "Reanudar"; return; }
     timer = setInterval(() => { left = Math.max(0, left - 1); tm.textContent = `${String(Math.floor(left/60)).padStart(2,"0")}:${String(left%60).padStart(2,"0")}`; if (!left) { clearInterval(timer); timer = null; tm.textContent = "¡Tiempo!"; } }, 1000); };
-  document.getElementById("rs").onclick = () => { if (confirm("¿Borrar el trabajo de esta comunidad?")) { S.com[k] = {}; save(); route(); } };
-  return S.com[k];
 }
 function vMySQL(){
-  const SG = [["MySQL","Relacional"],["PostgreSQL","Relacional"],["Oracle","Relacional"],["MongoDB","NoSQL"],["Redis","NoSQL"]];
-  const st = comShell("mysql", ["Marquen si cada sistema gestor es relacional o NoSQL.","Escriban un ejemplo de uso para cada uno.","Pulsen “Comprobar” y corrijan si hace falta.","Escriban su explicación y preséntenla."],
-    "MySQL → Relacional → una tienda en línea que guarda clientes y pedidos en tablas.",
-    `<div class="panel scroll"><table><tr><th>Sistema gestor</th><th>Tipo</th><th>Ejemplo de uso</th><th></th></tr>${SG.map(([n],i)=>`<tr><td><b>${n}</b></td><td><div class="chips"><button class="chip" data-i="${i}" data-v="Relacional">Relacional</button><button class="chip" data-i="${i}" data-v="NoSQL">NoSQL</button></div></td><td><input type="text" data-u="${i}" placeholder="¿Para qué se usa?"></td><td id="r${i}"></td></tr>`).join("")}</table>
-    <p><button class="primary" id="ck">Comprobar</button> <span id="ckm"></span></p></div>`);
-  st.tipo = st.tipo || {}; st.uso = st.uso || {};
-  const draw = () => { app.querySelectorAll("[data-v]").forEach(b => b.classList.toggle("sel", st.tipo[b.dataset.i] === b.dataset.v)); };
-  app.querySelectorAll("[data-v]").forEach(b => b.onclick = () => { st.tipo[b.dataset.i] = b.dataset.v; save(); draw(); });
-  app.querySelectorAll("[data-u]").forEach(x => { x.value = st.uso[x.dataset.u] || ""; x.oninput = () => { st.uso[x.dataset.u] = x.value; save(); }; });
-  document.getElementById("ck").onclick = () => { let ok = 0; SG.forEach(([n,t],i) => { const good = st.tipo[i] === t; if (good) ok++; document.getElementById("r"+i).innerHTML = good ? '<span class="ok-msg">✔</span>' : '<span class="err-msg">✘</span>'; });
-    document.getElementById("ckm").innerHTML = ok === SG.length ? '<span class="ok-msg">¡Todo correcto!</span>' : `<span class="err-msg">${ok} de ${SG.length} correctos. Revisen los marcados con ✘.</span>`; };
-  draw();
+  comShell("mysql",
+  "Un <b>sistema gestor de bases de datos (SGBD)</b> es el programa que crea, guarda, protege y consulta los datos. Hay dos grandes tipos: las bases de datos <b>relacionales</b>, que guardan los datos en tablas relacionadas y usan el lenguaje SQL, y las <b>NoSQL</b>, que guardan los datos en formatos más flexibles, como documentos o pares clave-valor.",
+  `<div class="panel scroll"><b>Cuadro comparativo</b><table>
+    <tr><th>Sistema gestor</th><th>Tipo</th><th>¿Cómo guarda los datos?</th><th>Ejemplo de uso</th></tr>
+    <tr><td><b>MySQL</b></td><td class="hc">Relacional</td><td>En tablas relacionadas entre sí</td><td>El sistema de ventas de la “Tienda La Esquina” o una tienda en línea</td></tr>
+    <tr><td><b>PostgreSQL</b></td><td class="hc">Relacional</td><td>En tablas, con funciones avanzadas</td><td>Aplicaciones grandes, como sistemas de gobierno o de reservas</td></tr>
+    <tr><td><b>Oracle</b></td><td class="hc">Relacional</td><td>En tablas, pensado para grandes empresas</td><td>Bancos y empresas de telecomunicaciones</td></tr>
+    <tr><td><b>MongoDB</b></td><td>NoSQL (documentos)</td><td>En documentos parecidos a fichas</td><td>Catálogos de productos o redes sociales, donde los datos cambian mucho</td></tr>
+    <tr><td><b>Redis</b></td><td>NoSQL (clave-valor)</td><td>En pares clave-valor, en memoria</td><td>Carritos de compra y datos que se necesitan muy rápido</td></tr></table>
+    <div class="note">Las tres primeras filas, en verde, son relacionales: todas usan tablas y SQL. Las dos últimas son NoSQL: guardan los datos de otra forma.</div></div>
+  <div class="panel"><b>¿Cómo distinguirlas?</b><div class="grid" style="margin-top:8px">
+    <div class="okbox"><b>Relacional</b><br>Datos en tablas con filas y columnas.<br>Se consultan con SQL.<br>Ideal cuando los datos tienen una estructura fija, como clientes y ventas.</div>
+    <div class="okbox" style="border-color:var(--amber)"><b>NoSQL</b><br>Datos en documentos o pares clave-valor.<br>No siempre usan SQL.<br>Ideal cuando los datos cambian mucho o se necesitan muy rápido.</div></div>
+    <div class="note">Para la “Tienda La Esquina” conviene una base de datos relacional, porque clientes, productos y ventas tienen una estructura fija y están relacionados.</div></div>`,
+  ["Digan qué es un SGBD con sus palabras: el programa que maneja los datos.","Expliquen la diferencia entre relacional y NoSQL usando el cuadro de “¿Cómo distinguirlas?”.","Recorran el cuadro comparativo: tres relacionales y dos NoSQL, con un ejemplo de uso de cada uno.","Cierren diciendo qué tipo usarían para la “Tienda La Esquina” y por qué."],
+  [["¿MySQL es una base de datos?","Es un sistema gestor: el programa que crea y maneja bases de datos."],["¿Por qué MongoDB no es relacional?","Porque guarda los datos en documentos y no en tablas relacionadas."],["¿Cuál es mejor?","Depende del uso: relacional para datos estructurados; NoSQL para datos flexibles o muy rápidos."]]);
 }
 function vPostgreSQL(){
-  const st = comShell("postgresql", ["Completen la tabla clientes con al menos 4 registros.","Toquen el nombre de la columna cuyos valores no se pueden repetir.","Respondan qué es una fila y qué es una columna.","Escriban su explicación y preséntenla."],
-    "La fila 1 es el registro completo de Ana Pérez; la columna municipio guarda el municipio de cada cliente.",
-    `<div class="panel scroll"><b>Tabla clientes</b><table id="tb"></table><p><button id="ad">Agregar fila</button> <span id="um" class="muted"></span></p></div>
-    <div class="panel grid"><label><b>¿Qué es una fila (registro)?</b><textarea id="qf"></textarea></label><label><b>¿Qué es una columna (campo)?</b><textarea id="qc"></textarea></label></div>`);
-  const COLS = ["id_cliente","nombre","telefono","municipio"];
-  st.rows = st.rows || [["1","Ana Pérez","809-555-0101","San Cristóbal"],["2","Luis Martínez","829-555-0102","Baní"],["3","Carmen Rosario","849-555-0103","San Cristóbal"]];
-  const draw = () => {
-    const tb = document.getElementById("tb");
-    tb.innerHTML = `<tr>${COLS.map((c,j)=>`<th class="pick ${st.uniq===j?"on":""}" data-j="${j}" title="Tocar para marcar valores únicos">${c}</th>`).join("")}</tr>` + st.rows.map((r,i)=>`<tr>${r.map((v,j)=>`<td><input type="text" data-i="${i}" data-j="${j}" value="${esc(v)}"></td>`).join("")}</tr>`).join("");
-    tb.querySelectorAll("input").forEach(x => x.oninput = () => { st.rows[+x.dataset.i][+x.dataset.j] = x.value; save(); check(); });
-    tb.querySelectorAll("th.pick").forEach(h => h.onclick = () => { st.uniq = +h.dataset.j; save(); draw(); });
-    check();
-  };
-  const check = () => { const um = document.getElementById("um");
-    if (st.uniq === undefined) { um.textContent = `La tabla tiene ${st.rows.length} filas (registros) y ${COLS.length} columnas (campos).`; return; }
-    const vals = st.rows.map(r => r[st.uniq].trim()).filter(Boolean); const dup = vals.length !== new Set(vals).size;
-    um.innerHTML = `${st.rows.length} filas y ${COLS.length} columnas. Columna marcada: <b>${COLS[st.uniq]}</b> — ` + (st.uniq === 0 && !dup ? '<span class="ok-msg">¡Correcto! Sus valores no se repiten.</span>' : dup ? '<span class="err-msg">Tiene valores repetidos.</span>' : '<span class="err-msg">Sus valores podrían repetirse en otros clientes.</span>'); };
-  document.getElementById("ad").onclick = () => { st.rows.push(["","","",""]); save(); draw(); };
-  [["qf","f"],["qc","c"]].forEach(([id,key]) => { const x = document.getElementById(id); x.value = st[key] || ""; x.oninput = () => { st[key] = x.value; save(); }; });
-  draw();
+  comShell("postgresql",
+  "En una base de datos relacional, los datos se guardan en <b>tablas</b>. Cada tabla tiene <b>filas</b> (registros) y <b>columnas</b> (campos). Algunos valores, como el código de cada cliente, <b>no se pueden repetir</b>.",
+  `<div class="panel scroll"><b>Tabla clientes de la “Tienda La Esquina”</b><table>
+    <tr><th class="hc">id_cliente <span class="tag">valor único</span></th><th>nombre</th><th>telefono</th><th>municipio <span class="tag" style="background:var(--soft)">columna</span></th></tr>
+    <tr class="hl"><td class="hc">1</td><td>Ana Pérez</td><td>809-555-0101</td><td>San Cristóbal</td></tr>
+    <tr><td class="hc">2</td><td>Luis Martínez</td><td>829-555-0102</td><td>Baní</td></tr>
+    <tr><td class="hc">3</td><td>Carmen Rosario</td><td>849-555-0103</td><td>San Cristóbal</td></tr>
+    <tr><td class="hc">4</td><td>Pedro Castillo</td><td>809-555-0104</td><td>Haina</td></tr></table>
+    <div class="note">La fila resaltada en amarillo es <b>una fila o registro</b>: todos los datos de un solo cliente, Ana Pérez.</div>
+    <div class="note">Cada columna es <b>un campo</b>: un solo tipo de dato para todos los clientes. Por ejemplo, la columna municipio guarda el municipio de cada cliente.</div>
+    <div class="note">La columna en verde, <b>id_cliente</b>, tiene valores que no se repiten. En cambio, “San Cristóbal” sí se repite en la columna municipio, y eso está bien.</div></div>
+  <div class="panel"><b>Definiciones</b><dl class="defs">
+    <dt>Tabla</dt><dd>Conjunto de datos sobre un mismo tema (por ejemplo, clientes) organizado en filas y columnas.</dd>
+    <dt>Fila o registro</dt><dd>Todos los datos de un elemento: un cliente.</dd>
+    <dt>Columna o campo</dt><dd>Un dato específico de todos los elementos: el nombre, el teléfono o el municipio.</dd>
+    <dt>Valor único</dt><dd>Un dato que no se repite en ninguna fila y sirve para distinguir cada registro.</dd></dl>
+    <div class="note">La tabla tiene 4 filas y 4 columnas. Si la tienda registra un cliente nuevo, se agrega una fila; si quiere guardar un dato nuevo, como el correo, se agrega una columna.</div></div>`,
+  ["Muestren la tabla clientes y digan de qué trata: los clientes de la “Tienda La Esquina”.","Señalen la fila resaltada y expliquen qué es una fila o registro.","Señalen la columna municipio y expliquen qué es una columna o campo.","Señalen la columna id_cliente y expliquen por qué sus valores no se repiten, mientras que el municipio sí puede repetirse."],
+  [["¿Qué pasa si agrego un cliente nuevo?","Se agrega una fila nueva a la tabla."],["¿Y si quiero guardar el correo de los clientes?","Se agrega una columna nueva: correo."],["¿Por qué no se usa el nombre para identificar al cliente?","Porque dos clientes pueden llamarse igual; el id_cliente nunca se repite."]]);
 }
 function vOracle(){
-  const st = comShell("oracle", ["Registren al menos 3 clientes en la tabla con clave primaria.","Intenten registrar un id repetido y otro vacío: lean el mensaje de error.","Respondan por qué la clave primaria debe ser única y no nula.","Copien el SQL generado y pruébenlo en MySQL Workbench si hay tiempo."],
-    "Si dos clientes tuvieran el id 1, no sabríamos a quién pertenece una venta. Por eso la clave primaria no se repite ni queda vacía.",
-    `<div class="panel"><div class="grid"><label>id_cliente (clave primaria)<input type="text" id="fi" placeholder="Ej.: 1"></label><label>nombre<input type="text" id="fn" placeholder="Ej.: Ana Pérez"></label><label>municipio<input type="text" id="fm" placeholder="Ej.: San Cristóbal"></label></div>
-    <p><button class="primary" id="ins">Insertar cliente</button> <span id="msg"></span></p><div class="scroll" id="tb"></div></div>
-    <div class="panel"><b>¿Por qué la clave primaria debe ser única y no nula?</b><textarea id="qp"></textarea></div>
-    <div class="panel"><b>SQL generado</b><pre id="sql" style="white-space:pre-wrap;background:var(--soft);padding:12px;border-radius:10px;font-size:.95rem"></pre><button id="cp">Copiar SQL</button> <span id="cpm" class="muted"></span></div>`);
-  st.rows = st.rows || [];
-  const sqlq = v => "'" + String(v).replace(/'/g, "''") + "'";
-  const draw = () => {
-    document.getElementById("tb").innerHTML = st.rows.length ? `<table><tr><th>🔑 id_cliente</th><th>nombre</th><th>municipio</th><th></th></tr>${st.rows.map((r,i)=>`<tr><td><b>${esc(r[0])}</b></td><td>${esc(r[1])}</td><td>${esc(r[2])}</td><td><button class="chip" data-del="${i}">Quitar</button></td></tr>`).join("")}</table>` : '<p class="empty">Todavía no hay clientes registrados.</p>';
-    document.querySelectorAll("[data-del]").forEach(b => b.onclick = () => { st.rows.splice(+b.dataset.del,1); save(); draw(); });
-    document.getElementById("sql").textContent = "CREATE TABLE clientes (\n  id_cliente INT PRIMARY KEY,\n  nombre     VARCHAR(80) NOT NULL,\n  municipio  VARCHAR(50)\n);\n" + st.rows.map(r => `INSERT INTO clientes VALUES (${r[0]}, ${sqlq(r[1])}, ${sqlq(r[2])});`).join("\n");
-  };
-  document.getElementById("ins").onclick = () => {
-    const id = document.getElementById("fi").value.trim(), nm = document.getElementById("fn").value.trim(), mu = document.getElementById("fm").value.trim(), msg = document.getElementById("msg");
-    if (!id) { msg.innerHTML = '<span class="err-msg">Error: la clave primaria no puede quedar vacía (NOT NULL).</span>'; return; }
-    if (!/^\d+$/.test(id)) { msg.innerHTML = '<span class="err-msg">Error: id_cliente es de tipo INT; escriban un número.</span>'; return; }
-    if (st.rows.some(r => r[0] === id)) { msg.innerHTML = `<span class="err-msg">Error: el id ${esc(id)} ya existe. La clave primaria no se puede repetir.</span>`; return; }
-    if (!nm) { msg.innerHTML = '<span class="err-msg">Error: el nombre es obligatorio (NOT NULL).</span>'; return; }
-    st.rows.push([id,nm,mu]); save(); msg.innerHTML = '<span class="ok-msg">Cliente registrado.</span>'; ["fi","fn","fm"].forEach(x => document.getElementById(x).value = ""); draw(); };
-  const qp = document.getElementById("qp"); qp.value = st.p || ""; qp.oninput = () => { st.p = qp.value; save(); };
-  document.getElementById("cp").onclick = () => { try { navigator.clipboard.writeText(document.getElementById("sql").textContent).then(() => document.getElementById("cpm").textContent = "Copiado.", () => document.getElementById("cpm").textContent = "Selecciónenlo y cópienlo a mano."); } catch(e) { document.getElementById("cpm").textContent = "Selecciónenlo y cópienlo a mano."; } };
-  draw();
+  comShell("oracle",
+  "La <b>clave primaria</b> es la columna que identifica cada fila de una tabla. Tiene dos reglas: debe ser <b>única</b> (no se repite) y <b>no nula</b> (nunca queda vacía). En la tabla clientes, la clave primaria es <b>id_cliente</b>.",
+  `<div class="panel scroll"><b>Tabla clientes con clave primaria</b><table>
+    <tr><th class="hc">🔑 id_cliente</th><th>nombre</th><th>municipio</th></tr>
+    <tr><td class="hc">1</td><td>Ana Pérez</td><td>San Cristóbal</td></tr>
+    <tr><td class="hc">2</td><td>Luis Martínez</td><td>Baní</td></tr>
+    <tr><td class="hc">3</td><td>Carmen Rosario</td><td>San Cristóbal</td></tr></table>
+    <div class="note">La llave 🔑 indica la clave primaria. Cada cliente tiene un número distinto.</div></div>
+  <div class="panel"><b>¿Qué pasa si no se cumplen las reglas?</b>
+    <div class="errbox"><b>Intento 1:</b> registrar otro cliente con id_cliente = 1.<br><b>Resultado:</b> error, el valor 1 ya existe. La clave primaria no se puede repetir.</div>
+    <div class="errbox"><b>Intento 2:</b> registrar un cliente sin id_cliente.<br><b>Resultado:</b> error, la clave primaria no puede quedar vacía.</div>
+    <div class="okbox"><b>Intento 3:</b> registrar un cliente con id_cliente = 4.<br><b>Resultado:</b> se guarda correctamente, porque el 4 es nuevo y no está vacío.</div>
+    <div class="note">Si dos clientes tuvieran el id 1, no sabríamos a quién pertenece una venta. Por eso el sistema gestor rechaza los valores repetidos o vacíos.</div></div>
+  <div class="panel"><b>Así se crea en SQL</b><pre class="code">CREATE TABLE clientes (
+  id_cliente INT PRIMARY KEY,
+  nombre     VARCHAR(80) NOT NULL,
+  municipio  VARCHAR(50)
+);
+
+INSERT INTO clientes VALUES (1, 'Ana Pérez', 'San Cristóbal');
+INSERT INTO clientes VALUES (2, 'Luis Martínez', 'Baní');
+INSERT INTO clientes VALUES (3, 'Carmen Rosario', 'San Cristóbal');</pre>
+    <div class="note"><b>CREATE TABLE</b> crea la tabla. <b>PRIMARY KEY</b> convierte id_cliente en clave primaria. <b>INT</b> indica que es un número. <b>NOT NULL</b> hace que el nombre sea obligatorio. <b>INSERT INTO</b> agrega cada cliente.</div></div>`,
+  ["Digan qué es la clave primaria y sus dos reglas: única y no nula.","Muestren la tabla y señalen la columna con la llave 🔑.","Expliquen los tres intentos: los dos que dan error y el que se guarda bien.","Lean el código SQL y expliquen qué hace PRIMARY KEY.","Cierren con el ejemplo: si dos clientes tuvieran el mismo id, no sabríamos de quién es una venta."],
+  [["¿Puede una tabla no tener clave primaria?","Puede, pero no es recomendable: no habría forma segura de distinguir cada fila."],["¿La cédula podría ser clave primaria?","Sí, porque no se repite; aunque muchas veces se usa un número interno como id_cliente."],["¿Qué es una clave compuesta?","Una clave formada por dos o más columnas juntas, como id_venta + id_producto."]]);
 }
 function vMongoDB(){
-  const T = [["1 : 1","Uno a uno","Un elemento de A se relaciona con uno solo de B."],["1 : N","Uno a muchos","Un elemento de A se relaciona con muchos de B."],["N : M","Muchos a muchos","Muchos de A se relacionan con muchos de B (necesita una tabla intermedia)."]];
-  const st = comShell("mongodb", ["Para cada tipo de relación, escriban las dos entidades de la “Tienda La Esquina” (u otro ejemplo real).","Escriban cómo se lee la relación.","Revisen el diagrama que se forma.","Escriban su explicación y preséntenla."],
-    "1 : N → cliente y ventas: “un cliente realiza muchas ventas, pero cada venta es de un solo cliente”.",
-    `<div id="rels"></div>`);
-  st.r = st.r || [{a:"",b:"",x:""},{a:"cliente",b:"venta",x:"Un cliente realiza muchas ventas; cada venta es de un solo cliente."},{a:"",b:"",x:""}];
-  const box = document.getElementById("rels");
-  const PH = [["empleado","cuenta de usuario","Un empleado tiene una sola cuenta de usuario."],["cliente","venta","Un cliente realiza muchas ventas."],["venta","producto","Una venta tiene muchos productos y un producto está en muchas ventas."]];
-  box.innerHTML = T.map(([n,t,d],i)=>`<div class="panel"><b>${n} · ${t}</b> <span class="muted">${d}</span>
-    <div class="grid" style="margin-top:8px"><label>Entidad A<input type="text" data-i="${i}" data-f="a" placeholder="Ej.: ${PH[i][0]}"></label><label>Entidad B<input type="text" data-i="${i}" data-f="b" placeholder="Ej.: ${PH[i][1]}"></label></div>
-    <div class="rel" id="d${i}"></div><label>¿Cómo se lee?<input type="text" data-i="${i}" data-f="x" placeholder="Ej.: ${PH[i][2]}"></label></div>`).join("");
-  const drawD = i => { const r = st.r[i]; document.getElementById("d"+i).innerHTML = (r.a && r.b) ? `<span class="ent">${esc(r.a)}</span><b>— ${T[i][0]} —</b><span class="ent">${esc(r.b)}</span>` : '<span class="muted">Escriban las dos entidades para ver el diagrama.</span>'; };
-  box.querySelectorAll("input").forEach(x => { const i = +x.dataset.i, f = x.dataset.f; x.value = st.r[i][f] || ""; x.oninput = () => { st.r[i][f] = x.value; save(); drawD(i); }; });
-  [0,1,2].forEach(drawD);
+  const rel = (a, card, b) => `<div class="rel"><span class="ent">${a}</span><b>— ${card} —</b><span class="ent">${b}</span></div>`;
+  comShell("mongodb",
+  "Las tablas de una base de datos se conectan mediante <b>relaciones</b>. La cardinalidad indica cuántos elementos de una tabla se relacionan con los de la otra: <b>uno a uno (1:1)</b>, <b>uno a muchos (1:N)</b> o <b>muchos a muchos (N:M)</b>.",
+  `<div class="panel"><b>1 : 1 · Uno a uno</b>${rel("empleado","1 : 1","cuenta de usuario")}
+    <p style="margin:4px 0"><b>Se lee:</b> un empleado tiene una sola cuenta de usuario, y cada cuenta pertenece a un solo empleado.</p>
+    <div class="note">Es la relación menos común. Se usa cuando cada elemento tiene exactamente una pareja.</div></div>
+  <div class="panel"><b>1 : N · Uno a muchos</b>${rel("cliente","1 : N","venta")}
+    <p style="margin:4px 0"><b>Se lee:</b> un cliente realiza muchas ventas, pero cada venta es de un solo cliente.</p>
+    <div class="note">Es la relación más común. En la tabla ventas se guarda el id_cliente para saber de quién es cada venta.</div></div>
+  <div class="panel"><b>N : M · Muchos a muchos</b>${rel("venta","N : M","producto")}
+    <p style="margin:4px 0"><b>Se lee:</b> una venta tiene muchos productos, y un producto aparece en muchas ventas.</p>
+    <div class="rel"><span class="ent">venta</span><b>— 1 : N —</b><span class="ent" style="background:var(--amber);color:#1B1F2A">detalle_venta</span><b>— N : 1 —</b><span class="ent">producto</span></div>
+    <div class="note">Una relación muchos a muchos no se guarda directamente: se crea una tabla intermedia, detalle_venta, que guarda qué productos y cuántos lleva cada venta.</div></div>`,
+  ["Digan qué es una relación: la forma en que se conectan dos tablas.","Expliquen el ejemplo 1:1 (empleado y cuenta de usuario).","Expliquen el ejemplo 1:N (cliente y venta), el más común en la tienda.","Expliquen el ejemplo N:M (venta y producto) y por qué necesita la tabla intermedia detalle_venta.","Cierren pidiendo al grupo otro ejemplo de cualquier tipo de relación."],
+  [["¿Cómo sé qué tipo de relación es?","Pregúntense en los dos sentidos: ¿uno o muchos? Un cliente, ¿muchas ventas? Una venta, ¿muchos clientes?"],["¿Por qué N:M necesita otra tabla?","Porque una sola columna no puede guardar muchos productos; la tabla intermedia guarda cada pareja venta-producto."],["¿Dónde se guarda la relación 1:N?","En la tabla del lado “muchos”: ventas guarda el id_cliente."]]);
 }
 
 function vCoev(){
@@ -391,7 +407,7 @@ function vAcuerdos(){
 }
 
 const ROUTES = {inicio:vInicio, expectativas:vExpectativas, diagnostico:()=>vQuiz("diagnostico"), cierre:()=>vQuiz("cierre"), comunidades:vComunidades, "c-mysql":vMySQL, "c-postgresql":vPostgreSQL, "c-oracle":vOracle, "c-mongodb":vMongoDB, rubrica:vRubrica, acuerdos:vAcuerdos};
-function route(){ document.body.classList.remove("present"); const k = (location.hash||"").slice(1); const v = ROUTES[k] ? k : "inicio"; nav(v.startsWith("c-") ? "comunidades" : v); ROUTES[v](); window.scrollTo(0,0); }
+function route(){ document.body.classList.remove("present","hide-notes"); const k = (location.hash||"").slice(1); const v = ROUTES[k] ? k : "inicio"; nav(v.startsWith("c-") ? "comunidades" : v); ROUTES[v](); window.scrollTo(0,0); }
 window.addEventListener("hashchange", route);
 route();
 </script>
